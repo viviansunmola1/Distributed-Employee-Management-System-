@@ -1,7 +1,7 @@
 import socket
 
 def Main():
-    host = '127.0.0.1'
+    host = 'localhost'
     port = 5000
 
     s = socket.socket()
@@ -16,5 +16,5 @@ def Main():
         message = input("->")
     s.close()
 
-    if __name__== '__main__':
-        Main()
+if __name__== '__main__':
+    Main()
