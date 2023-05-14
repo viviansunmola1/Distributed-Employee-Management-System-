@@ -1,40 +1,61 @@
+import tkinter as tk
 import socket
 import json
 
-def Main():
-    host = 'localhost'
-    port = 5000
+class EmployeeForm(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.pack()
+        self.create_widgets()
 
-    s = socket.socket()
-    s.connect((host, port))
+    def create_widgets(self):
+        tk.Label(self, text="First Name").grid(row=0)
+        tk.Label(self, text="Last Name").grid(row=1)
+        tk.Label(self, text="Age").grid(row=2)
+        tk.Label(self, text="Employment Status").grid(row=3)
 
-    employee = {}
+        self.fn_entry = tk.Entry(self)
+        self.ln_entry = tk.Entry(self)
+        self.age_entry = tk.Entry(self)
+        self.emp_entry = tk.Entry(self)
 
-    # Prompt user for employee details
-    employee['first_name'] = input("Enter First Name: ")
-    employee['last_name'] = input("Enter Last Name: ")
-    employee['age'] = input("Enter Age: ")
-    employee['employed'] = input("Enter Employment Status: ")
+        self.fn_entry.grid(row=0, column=1)
+        self.ln_entry.grid(row=1, column=1)
+        self.age_entry.grid(row=2, column=1)
+        self.emp_entry.grid(row=3, column=1)
 
-    # Convert employee details to JSON format
-    data = json.dumps(employee)
+        self.submit_button = tk.Button(self, text="Submit", command=self.submit_data)
+        self.submit_button.grid(row=4, column=1)
 
-    while True:
-        # Send employee data to the server
+    def submit_data(self):
+        host = 'localhost'
+        port = 5000
+
+        s = socket.socket()
+        s.connect((host, port))
+
+        employee = {}
+        employee['first_name'] = self.fn_entry.get()
+        employee['last_name'] = self.ln_entry.get()
+        employee['age'] = self.age_entry.get()
+        employee['employed'] = self.emp_entry.get()
+
+        data = json.dumps(employee)
+
         s.send(data.encode('utf-8'))
-
-        # Receive and print response from the server
         response = s.recv(1024).decode('utf-8')
         print("Response from server:", response)
 
-        # Optionally, handle any additional logic based on the response
+        s.close()
 
-        # Prompt user to quit or continue sending employee details
-        message = input("Enter 'q' to quit or continue sending employee details: ")
-        if message == 'q':
-            break
-
-    s.close()
+        self.fn_entry.delete(0, tk.END)
+        self.ln_entry.delete(0, tk.END)
+        self.age_entry.delete(0, tk.END)
+        self.emp_entry.delete(0, tk.END)
 
 if __name__ == '__main__':
-    Main()
+    root = tk.Tk()
+    root.title("Employee Form")
+    form = EmployeeForm(master=root)
+    form.mainloop()
