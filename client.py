@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import socket
 import json
+import threading
 
 class EmployeeForm(tk.Frame):
     def __init__(self, master=None):
@@ -58,36 +59,44 @@ class EmployeeForm(tk.Frame):
         if not self.fn_entry.get() or not self.ln_entry.get() or not self.age_entry.get() or not self.emp_status.get():
             messagebox.showinfo("Error", "Please fill out all fields before submitting.")
         else:
-            try:
-                host = 'localhost'
-                port = 5000
+            # Move the submission process to a separate thread to avoid the tkinter app to freeze
+            threading.Thread(target=self.submit_data_thread).start()
 
-                s = socket.socket()
-                s.connect((host, port))
+    def submit_data_thread(self):
+        try:
+            host = 'localhost'
+            port = 5000
 
-                employee = {}
-                employee['first_name'] = self.fn_entry.get()
-                employee['last_name'] = self.ln_entry.get()
-                employee['age'] = self.age_entry.get()
-                employee['employed'] = self.emp_status.get()
+            s = socket.socket()
+            s.connect((host, port))
 
-                data = json.dumps(employee)
+            employee = {}
+            employee['first_name'] = self.fn_entry.get()
+            employee['last_name'] = self.ln_entry.get()
+            employee['age'] = self.age_entry.get()
+            employee['employed'] = self.emp_status.get()
 
-                s.send(data.encode('utf-8'))
-                response = s.recv(1024).decode('utf-8')
-                print("Response from server:", response)
+            data = json.dumps(employee)
 
-                s.close()
+            s.send(data.encode('utf-8'))
+            response = s.recv(1024).decode('utf-8')
+            print("Response from server:", response)
 
-                self.fn_entry.delete(0, tk.END)
-                self.ln_entry.delete(0, tk.END)
-                self.age_entry.delete(0, tk.END)
-                self.emp_dropdown.set("")
-                messagebox.showinfo("Success", "Data submitted successfully!")
+            s.close()
 
-            except Exception as e:
-                print("Error submitting data:", e)
-                messagebox.showerror("Error", "An error occurred while submitting data.")
+            # Update the GUI with the response from the server
+            self.master.after(0, lambda: self.fn_entry.delete(0, tk.END))
+            self.master.after(0, lambda: self.ln_entry.delete(0, tk.END))
+            self.master.after(0, lambda: self.age_entry.delete(0, tk.END))
+            self.master.after(0, lambda: self.emp_dropdown.set(""))
+            self.master.after(0, lambda: messagebox.showinfo("Success", "Data submitted successfully!"))
+
+        except ConnectionRefusedError:
+            print("Error submitting data: connection refused")
+            messagebox.showerror("Error", "Could not connect to server. Please try again later.")
+        except Exception as e:
+            print("Error submitting data:", e)
+            messagebox.showerror("Error", "An error occurred while submitting data.")
 
 if __name__ == '__main__':
     root = tk.Tk()
