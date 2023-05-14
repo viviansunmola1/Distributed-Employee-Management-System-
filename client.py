@@ -8,7 +8,7 @@ class EmployeeForm(tk.Frame):
         super().__init__(master)
         self.master = master
         self.master.title("Employee Form")
-        self.master.geometry("350x200")
+        self.master.geometry("350x160")
         self.master.eval('tk::PlaceWindow . center')
         self.pack()
         self.create_widgets()
@@ -19,13 +19,16 @@ class EmployeeForm(tk.Frame):
         tk.Label(self, text="Age").grid(row=2)
         tk.Label(self, text="Employment Status").grid(row=3)
 
-        self.fn_entry = tk.Entry(self)
-        self.ln_entry = tk.Entry(self)
-        self.age_entry = tk.Entry(self)
+        vcmd_letter = (self.master.register(self.only_letters), '%S')
+        vcmd_digit = (self.master.register(self.only_digits), '%S')
+
+        self.fn_entry = tk.Entry(self, validate='key', validatecommand=vcmd_letter)
+        self.ln_entry = tk.Entry(self, validate='key', validatecommand=vcmd_letter)
+        self.age_entry = tk.Entry(self, validate='key', validatecommand=vcmd_digit)
 
         self.emp_status = tk.StringVar()
         emp_statuses = ["Employed", "Unemployed"]
-        self.emp_dropdown = ttk.Combobox(self, textvariable=self.emp_status, values=emp_statuses)
+        self.emp_dropdown = ttk.Combobox(self, textvariable=self.emp_status, values=emp_statuses, state='readonly')
 
         self.fn_entry.grid(row=0, column=1)
         self.ln_entry.grid(row=1, column=1)
@@ -33,7 +36,22 @@ class EmployeeForm(tk.Frame):
         self.emp_dropdown.grid(row=3, column=1)
 
         self.submit_button = tk.Button(self, text="Submit", command=self.submit_data)
-        self.submit_button.grid(row=4, column=1)
+        self.submit_button.grid(row=4, column=1, pady=(10, 0))
+
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_rowconfigure(5, weight=1)
+
+    def only_letters(self, char):
+        if char.isalpha() or char == '':
+            return True
+        else:
+            return False
+
+    def only_digits(self, char):
+        if char.isdigit() or char == '':
+            return True
+        else:
+            return False
 
     def submit_data(self):
         host = 'localhost'
