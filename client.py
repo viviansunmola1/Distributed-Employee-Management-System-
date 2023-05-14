@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import socket
 import json
 
@@ -8,13 +9,13 @@ class EmployeeForm(tk.Frame):
         super().__init__(master)
         self.master = master
         self.master.title("Employee Form")
-        self.master.geometry("350x160")
+        self.master.geometry("350x180")
         self.master.eval('tk::PlaceWindow . center')
         self.pack()
         self.create_widgets()
 
     def create_widgets(self):
-        tk.Label(self, text="First Name").grid(row=0)
+        tk.Label(self, text="First Name").grid(row=0, pady=(5, 0))
         tk.Label(self, text="Last Name").grid(row=1)
         tk.Label(self, text="Age").grid(row=2)
         tk.Label(self, text="Employment Status").grid(row=3)
@@ -30,7 +31,7 @@ class EmployeeForm(tk.Frame):
         emp_statuses = ["Employed", "Unemployed"]
         self.emp_dropdown = ttk.Combobox(self, textvariable=self.emp_status, values=emp_statuses, state='readonly')
 
-        self.fn_entry.grid(row=0, column=1)
+        self.fn_entry.grid(row=0, column=1, pady=(5, 0))
         self.ln_entry.grid(row=1, column=1)
         self.age_entry.grid(row=2, column=1)
         self.emp_dropdown.grid(row=3, column=1)
@@ -54,30 +55,39 @@ class EmployeeForm(tk.Frame):
             return False
 
     def submit_data(self):
-        host = 'localhost'
-        port = 5000
+        if not self.fn_entry.get() or not self.ln_entry.get() or not self.age_entry.get() or not self.emp_status.get():
+            messagebox.showinfo("Error", "Please fill out all fields before submitting.")
+        else:
+            try:
+                host = 'localhost'
+                port = 5000
 
-        s = socket.socket()
-        s.connect((host, port))
+                s = socket.socket()
+                s.connect((host, port))
 
-        employee = {}
-        employee['first_name'] = self.fn_entry.get()
-        employee['last_name'] = self.ln_entry.get()
-        employee['age'] = self.age_entry.get()
-        employee['employed'] = self.emp_status.get()
+                employee = {}
+                employee['first_name'] = self.fn_entry.get()
+                employee['last_name'] = self.ln_entry.get()
+                employee['age'] = self.age_entry.get()
+                employee['employed'] = self.emp_status.get()
 
-        data = json.dumps(employee)
+                data = json.dumps(employee)
 
-        s.send(data.encode('utf-8'))
-        response = s.recv(1024).decode('utf-8')
-        print("Response from server:", response)
+                s.send(data.encode('utf-8'))
+                response = s.recv(1024).decode('utf-8')
+                print("Response from server:", response)
 
-        s.close()
+                s.close()
 
-        self.fn_entry.delete(0, tk.END)
-        self.ln_entry.delete(0, tk.END)
-        self.age_entry.delete(0, tk.END)
-        self.emp_dropdown.set("")
+                self.fn_entry.delete(0, tk.END)
+                self.ln_entry.delete(0, tk.END)
+                self.age_entry.delete(0, tk.END)
+                self.emp_dropdown.set("")
+                messagebox.showinfo("Success", "Data submitted successfully!")
+
+            except Exception as e:
+                print("Error submitting data:", e)
+                messagebox.showerror("Error", "An error occurred while submitting data.")
 
 if __name__ == '__main__':
     root = tk.Tk()
