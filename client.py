@@ -76,12 +76,14 @@ class EmployeeForm(tk.Frame):
             employee['age'] = self.age_entry.get()
             employee['employed'] = self.emp_status.get()
 
-            data = json.dumps         
-            s.send(data.encode('utf-8'))
+            employee_data = json.dumps(employee)
+
+            s.send(employee_data.encode('utf-8'))
             response = s.recv(1024).decode('utf-8')
             print("Response from server:", response)
 
             s.close()
+
 
             # Update the GUI with the response from the server
             self.master.after(0, lambda: self.fn_entry.delete(0, tk.END))
