@@ -19,16 +19,10 @@ def Main():
 
         # Process the received data
         employee = json.loads(data)
-        first_name = employee['first_name']
-        last_name = employee['last_name']
-        age = employee['age']
-        employed = employee['employed']
+        employee_json = json.dumps(employee, indent=4)  # Convert the employee data back to JSON with indentation
 
-        print("Received employee details:")
-        print("First Name:", first_name)
-        print("Last Name:", last_name)
-        print("Age:", age)
-        print("Employed:", employed)
+        print("Received employee details as JSON:")
+        print(employee_json)
 
         # Perform any required operations with the employee details
 
