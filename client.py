@@ -15,7 +15,52 @@ class EmployeeForm(tk.Frame):
         self.pack()
         self.create_widgets()
 
-    # ... (existing code)
+    def create_widgets(self):
+        tk.Label(self, text="First Name").grid(row=0, pady=(5, 0))
+        tk.Label(self, text="Last Name").grid(row=1)
+        tk.Label(self, text="Age").grid(row=2)
+        tk.Label(self, text="Employment Status").grid(row=3)
+
+        vcmd_letter = (self.master.register(self.only_letters), '%S')
+        vcmd_digit = (self.master.register(self.only_digits), '%S')
+
+        self.fn_entry = tk.Entry(self, validate='key', validatecommand=vcmd_letter)
+        self.ln_entry = tk.Entry(self, validate='key', validatecommand=vcmd_letter)
+        self.age_entry = tk.Entry(self, validate='key', validatecommand=vcmd_digit)
+
+        self.emp_status = tk.StringVar()
+        emp_statuses = ["Employed", "Unemployed"]
+        self.emp_dropdown = ttk.Combobox(self, textvariable=self.emp_status, values=emp_statuses, state='readonly')
+
+        self.fn_entry.grid(row=0, column=1, pady=(5, 0))
+        self.ln_entry.grid(row=1, column=1)
+        self.age_entry.grid(row=2, column=1)
+        self.emp_dropdown.grid(row=3, column=1)
+
+        self.submit_button = tk.Button(self, text="Submit", command=self.submit_data)
+        self.submit_button.grid(row=4, column=1, pady=(10, 0))
+
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_rowconfigure(5, weight=1)
+
+    def only_letters(self, char):
+        if char.isalpha() or char == '':
+            return True
+        else:
+            return False
+
+    def only_digits(self, char):
+        if char.isdigit() or char == '':
+            return True
+        else:
+            return False
+
+    def submit_data(self):
+        if not self.fn_entry.get() or not self.ln_entry.get() or not self.age_entry.get() or not self.emp_status.get():
+            messagebox.showinfo("Error", "Please fill out all fields before submitting.")
+        else:
+            # Move the submission process to a separate thread to avoid the tkinter app to freeze
+            threading.Thread(target=self.submit_data_thread).start()
 
     def submit_data_thread(self):
         try:
@@ -31,15 +76,10 @@ class EmployeeForm(tk.Frame):
             employee['age'] = self.age_entry.get()
             employee['employed'] = self.emp_status.get()
 
-            data = json.dumps(employee)
-
+            data = json.dumps         
             s.send(data.encode('utf-8'))
             response = s.recv(1024).decode('utf-8')
             print("Response from server:", response)
-
-            # Display the JSON data in a message box
-            json_data = json.loads(response)
-            messagebox.showinfo("JSON Data", json.dumps(json_data, indent=4))
 
             s.close()
 
@@ -61,3 +101,4 @@ if __name__ == '__main__':
     root = tk.Tk()
     form = EmployeeForm(master=root)
     form.mainloop()
+
