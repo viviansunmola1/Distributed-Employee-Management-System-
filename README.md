@@ -11,12 +11,12 @@ To run this project, you need to have Python installed on your machine.
 1. Clone the repository to your local machine.
 
 2. Run the server script:
- `$ python server.py`
+ `$ python3 server.py`
 
 The server will start running on port 5000 and wait for incoming connections.
 
 3. Run the client script on a separate machine:
-`$ python client.py`
+`$ python3 client.py`
 
 The client will prompt you to enter the employee details, such as first name, last name, age, and employment status. Once entered, the client will send the data to the server for processing.
 
