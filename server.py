@@ -5,7 +5,7 @@ employee_data = {}
 
 @app.route('/')
 def index():
-    return "Hello, World!"
+    return "Go to localhost:5000/data"
 
 @app.route('/data', methods=['POST', 'GET'])
 def process_data():
