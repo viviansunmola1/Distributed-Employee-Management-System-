@@ -1,3 +1,5 @@
+## Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox

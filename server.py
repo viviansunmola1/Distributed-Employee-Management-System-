@@ -1,3 +1,5 @@
+# Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
+
 import socket 
 import json
 
