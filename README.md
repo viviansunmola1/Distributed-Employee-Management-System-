@@ -1,4 +1,4 @@
-# Distributed Employee Management System
+# Distributed Employee Management System - Vivian and Jabed
 
 This project is a distributed employee management system that allows users to input employee details on one machine and display the information on another machine. It utilizes a client-server architecture and communicates using JSON data.
 
