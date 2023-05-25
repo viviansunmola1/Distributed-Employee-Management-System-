@@ -1,38 +1,22 @@
-# Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
+from flask import Flask, jsonify, request
 
-import socket 
-import json
+app = Flask(__name__)
+employee_data = {}
 
-def Main():
-    host = '0.0.0.0'
-    port = 5000
+@app.route('/')
+def index():
+    return "Go to localhost:5000/data"
 
-    s = socket.socket()
-    s.bind((host, port))
-    s.listen(1)
-    print("Server is running on 5000")
-    c, addr = s.accept()
-    print("Connection from " + str(addr))
-
-    while True:
-        data = c.recv(1024).decode('utf-8')
-        if not data:
-            break
-
-        # Process the received data
-        employee = json.loads(data)
-        employee_json = json.dumps(employee, indent=4)  # Convert the employee data back to JSON with indentation
-
-        print("Received employee details as JSON:")
-        print(employee_json)
-
-        # Perform any required operations with the employee details
-
-        # Convert the response to JSON format and send it back
+@app.route('/data', methods=['POST', 'GET'])
+def process_data():
+    if request.method == 'POST':
+        employee = request.get_json()
+        # Process the received employee data as required
+        employee_data.update(employee)
         response = {'status': 'Success'}
-        c.send(json.dumps(response).encode('utf-8'))
-
-    c.close()
+        return jsonify(response)
+    elif request.method == 'GET':
+        return jsonify(employee_data)
 
 if __name__ == '__main__':
-    Main()
+    app.run(host='localhost', port=5000)

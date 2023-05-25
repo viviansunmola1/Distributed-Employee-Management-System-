@@ -1,9 +1,8 @@
-## Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
-
+# Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import socket
+import requests
 import json
 import threading
 
@@ -61,31 +60,20 @@ class EmployeeForm(tk.Frame):
         if not self.fn_entry.get() or not self.ln_entry.get() or not self.age_entry.get() or not self.emp_status.get():
             messagebox.showinfo("Error", "Please fill out all fields before submitting.")
         else:
-            # Move the submission process to a separate thread to avoid the tkinter app to freeze
+            # Move the submission process to a separate thread to avoid the tkinter app from freezing
             threading.Thread(target=self.submit_data_thread).start()
 
     def submit_data_thread(self):
         try:
-            host = 'localhost'
-            port = 5000
+            employee = {
+                'first_name': self.fn_entry.get(),
+                'last_name': self.ln_entry.get(),
+                'age': self.age_entry.get(),
+                'employed': self.emp_status.get()
+            }
 
-            s = socket.socket()
-            s.connect((host, port))
-
-            employee = {}
-            employee['first_name'] = self.fn_entry.get()
-            employee['last_name'] = self.ln_entry.get()
-            employee['age'] = self.age_entry.get()
-            employee['employed'] = self.emp_status.get()
-
-            employee_data = json.dumps(employee)
-
-            s.send(employee_data.encode('utf-8'))
-            response = s.recv(1024).decode('utf-8')
-            print("Response from server:", response)
-
-            s.close()
-
+            response = requests.post('http://localhost:5000/data', json=employee)
+            print("Response from server:", response.text)
 
             # Update the GUI with the response from the server
             self.master.after(0, lambda: self.fn_entry.delete(0, tk.END))
@@ -94,7 +82,7 @@ class EmployeeForm(tk.Frame):
             self.master.after(0, lambda: self.emp_dropdown.set(""))
             self.master.after(0, lambda: messagebox.showinfo("Success", "Data submitted successfully!"))
 
-        except ConnectionRefusedError:
+        except requests.exceptions.ConnectionError:
             print("Error submitting data: connection refused")
             messagebox.showerror("Error", "Could not connect to server. Please try again later.")
         except Exception as e:
@@ -105,4 +93,3 @@ if __name__ == '__main__':
     root = tk.Tk()
     form = EmployeeForm(master=root)
     form.mainloop()
-
