@@ -1,4 +1,3 @@
-# Vodafone-CDE (Vivian and Jabed) - Distributed Employee Management System
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -11,7 +10,7 @@ class EmployeeForm(tk.Frame):
         super().__init__(master)
         self.master = master
         self.master.title("Employee Form")
-        self.master.geometry("350x180")
+        self.master.geometry("350x200")
         self.master.eval('tk::PlaceWindow . center')
         self.pack()
         self.create_widgets()
@@ -41,8 +40,11 @@ class EmployeeForm(tk.Frame):
         self.submit_button = tk.Button(self, text="Submit", command=self.submit_data)
         self.submit_button.grid(row=4, column=1, pady=(10, 0))
 
+        self.collect_button = tk.Button(self, text="Collect Another Employee", command=self.collect_another_employee)
+        self.collect_button.grid(row=5, column=1, pady=(10, 0))
+
         self.master.grid_columnconfigure(1, weight=1)
-        self.master.grid_rowconfigure(5, weight=1)
+        self.master.grid_rowconfigure(6, weight=1)
 
     def only_letters(self, char):
         if char.isalpha() or char == '':
@@ -55,6 +57,12 @@ class EmployeeForm(tk.Frame):
             return True
         else:
             return False
+
+    def clear_fields(self):
+        self.fn_entry.delete(0, tk.END)
+        self.ln_entry.delete(0, tk.END)
+        self.age_entry.delete(0, tk.END)
+        self.emp_dropdown.set('')
 
     def submit_data(self):
         if not self.fn_entry.get() or not self.ln_entry.get() or not self.age_entry.get() or not self.emp_status.get():
@@ -75,11 +83,10 @@ class EmployeeForm(tk.Frame):
             response = requests.post('http://localhost:5000/data', json=employee)
             print("Response from server:", response.text)
 
-            # Update the GUI with the response from the server
-            self.master.after(0, lambda: self.fn_entry.delete(0, tk.END))
-            self.master.after(0, lambda: self.ln_entry.delete(0, tk.END))
-            self.master.after(0, lambda: self.age_entry.delete(0, tk.END))
-            self.master.after(0, lambda: self.emp_dropdown.set(""))
+            # Clear the input fields
+            self.master.after(0, self.clear_fields)
+
+            # Display success message
             self.master.after(0, lambda: messagebox.showinfo("Success", "Data submitted successfully!"))
 
         except requests.exceptions.ConnectionError:
@@ -88,6 +95,9 @@ class EmployeeForm(tk.Frame):
         except Exception as e:
             print("Error submitting data:", e)
             messagebox.showerror("Error", "An error occurred while submitting data.")
+
+    def collect_another_employee(self):
+        self.clear_fields()
 
 if __name__ == '__main__':
     root = tk.Tk()
